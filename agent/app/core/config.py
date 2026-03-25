@@ -23,7 +23,11 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str
     OPENAI_MODEL: str
     
-    # 기본 설정 (추가 환경변수가 필요하면 여기에 추가하세요)
+    # Elasticsearch 설정
+    ELASTICSEARCH_URL: str = "http://localhost:9200"
+    ELASTICSEARCH_INDEX: str = "medical_data"
+    ELASTICSEARCH_USERNAME: str = ""
+    ELASTICSEARCH_PASSWORD: str = ""
 
     # IMP: DeepAgents 라이브러리 실행 시 Graph 에이전트의 최대 재귀 호출 횟수(Recursion Limit) 설정
     # DeepAgents 설정
