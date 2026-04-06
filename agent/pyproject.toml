@@ -1,7 +1,7 @@
 [project]
-name = "agent-edu-template-server"
+name = "medical-agent-server"
 version = "0.1.0"
-description = "Agent Education Template Server"
+description = "LangChain 기반 의료 Q&A 에이전트 백엔드"
 requires-python = ">=3.11,<=3.13"
 dependencies = [
     "fastapi>=0.104.0",
@@ -16,7 +16,6 @@ dependencies = [
     "pydantic-settings>=2.0.0",
     "python-dotenv>=1.0.0",
     "httpx>=0.25.0",
-    "opik>=1.10.4",
 ]
 
 [build-system]

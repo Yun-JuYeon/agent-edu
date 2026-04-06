@@ -35,9 +35,9 @@ const InitPage = () => {
     setQuestion([]);
     setAnswer([]);
     setPrompt([
-      'Agent에게 인사하기',
-      '간단한 업무 요청하기',
-      '주요 뉴스 요약 요청하기'
+      '응급의학에 대해 알려줘',
+      '당뇨병의 주요 증상은?',
+      '의료 분쟁 사례를 알려줘'
     ]);
     setThreadId('');
   }, []);
@@ -61,10 +61,10 @@ const InitPage = () => {
     <Container maxWidth={'lg'} className={container}>
       <div className={wrapper}>
         <h3>
-          <em>{'Agent Template'}</em>
+          <em>{'Medical Agent'}</em>
           {'에 오신 것을 환영합니다'}
         </h3>
-        <h5>{'Agent 교육을 위한 챗봇 프론트엔드 환경입니다.'}</h5>
+        <h5>{'의료 데이터 기반 Q&A 어시스턴트입니다.'}</h5>
       </div>
 
       <div className={cardGrid}>

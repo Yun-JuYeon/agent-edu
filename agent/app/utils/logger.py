@@ -10,7 +10,7 @@ logging.basicConfig(
     format=LOG_FORMAT,
 )
 
-custom_logger = logging.getLogger("edu_agent")
+custom_logger = logging.getLogger("medical_agent")
 
 
 def log_execution(func):

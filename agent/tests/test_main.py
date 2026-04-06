@@ -9,7 +9,7 @@ def test_root_endpoint(client: TestClient):
     data = response.json()
     assert "message" in data
     assert "version" in data
-    assert data["message"] == "Edu Agent API"
+    assert data["message"] == "Medical Agent API"
     assert data["version"] == "0.1.0"
 
 @pytest.mark.order(2)

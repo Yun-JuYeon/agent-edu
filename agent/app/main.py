@@ -7,8 +7,8 @@ from app.api.routes.chat import chat_router
 from app.api.middleware import LoggingMiddleware
 
 app = FastAPI(
-    title="Edu Agent Template",
-    description="LangChain 기반 에이전트 교육용 템플릿",
+    title="Medical Agent",
+    description="LangChain 기반 의료 Q&A 에이전트",
     version="0.1.0",
 )
 
@@ -34,7 +34,7 @@ app.include_router(api_router)
 
 @app.get("/")
 async def root():
-    return {"message": "Edu Agent API", "version": "0.1.0"}
+    return {"message": "Medical Agent API", "version": "0.1.0"}
 
 
 @app.get("/health")
