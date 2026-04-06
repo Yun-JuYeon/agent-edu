@@ -2,7 +2,8 @@ import { ChatService } from "@/services/chatService";
 import { answerAtom } from "@/store/answer";
 import { threadById } from "@/store/message";
 import { questionAtom } from "@/store/question";
-import { useSetAtom } from "jotai";
+import { threadsRefreshAtom } from "@/store/threads";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -22,6 +23,7 @@ export const useHistory = () => {
   const setAnswer = useSetAtom(answerAtom);
   const setQuestion = useSetAtom(questionAtom);
   const setThreadId = useSetAtom(threadById);
+  const refreshTrigger = useAtomValue(threadsRefreshAtom);
 
   const [bookmark, setBookmark] = useState<threadType[]>([])
   const [histories, setHisories] = useState<threadType[]>([]);
@@ -38,7 +40,7 @@ export const useHistory = () => {
       setHisories(historyList);
       setSearchResults(historyList);
     })
-  }, []);
+  }, [refreshTrigger]);
 
   const searchByTitle = (data, keyword, caseSensitive = false) => {
     if(!keyword || keyword.trim() === ''){

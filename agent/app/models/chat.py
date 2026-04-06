@@ -1,4 +1,6 @@
-from typing import Dict, Optional
+"""Chat API 요청/응답 모델 정의"""
+
+from typing import Optional, Dict, Any
 from pydantic import BaseModel
 from uuid import UUID
 
@@ -8,11 +10,7 @@ class ChatRequest(BaseModel):
     message: str
 
 
-class ResponseMetadata(BaseModel):
-    pass
-
-
 class ChatResponse(BaseModel):
     message_id: str
     content: str
-    metadata: ResponseMetadata
+    metadata: Optional[Dict[str, Any]] = None

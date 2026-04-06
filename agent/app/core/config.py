@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     # LangChain 설정
     OPENAI_API_KEY: str
     OPENAI_MODEL: str
+    INTENT_CLASSIFIER_MODEL: str = "gpt-4o-mini"
     
     # Elasticsearch 설정
     ELASTICSEARCH_URL: str = "http://localhost:9200"

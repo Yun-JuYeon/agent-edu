@@ -3,8 +3,9 @@ import { answerAtom } from "@/store/answer";
 import { messageAtom, threadById } from "@/store/message";
 import { isPromptModalAtom, promptAtom } from "@/store/prompts";
 import { questionAtom } from "@/store/question";
+import { threadsRefreshAtom } from "@/store/threads";
 import { IMessage } from "@/types/chatVM";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
@@ -16,6 +17,7 @@ export const useChat = () => {
   const [question, setQuestion] = useAtom(questionAtom);
   const [prompt, setPrompt] = useAtom(promptAtom);
   const [threadId, setThreadId] = useAtom(threadById);
+  const refreshThreads = useSetAtom(threadsRefreshAtom);
 
   const [messages, setMessages] = useState<IMessage[]>([])
   const [message, setMessage] = useAtom(messageAtom);
@@ -63,6 +65,8 @@ export const useChat = () => {
 
     if (step === 'done') {
       setIsTyping(false);
+      // 사이드바 thread 목록 갱신
+      refreshThreads(prev => prev + 1);
       return
     }
   }
