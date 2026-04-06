@@ -1,78 +1,118 @@
-# Agent Education Template UI
+# Agent UI
 
-React 기반의 Agent 교육용 프론트엔드 템플릿입니다.
+React + Vite 기반 Agent 채팅 프론트엔드입니다.
 
 ## 기술 스택
 
-- React 18
-- Vite
-- pnpm
+- **React 19** + **TypeScript**
+- **Vite** — 개발 서버 / 번들러
+- **Material-UI** — UI 컴포넌트
+- **Jotai** — 글로벌 상태 관리
+- **@microsoft/fetch-event-source** — SSE 스트리밍
+- **Highcharts** — 차트 시각화
+- **pnpm** — 패키지 매니저
 
-## 교육생 환경 준비 및 실행 가이드
+## 환경 준비
 
-이 프로젝트를 처음 설정하고 실행하기 위해 아래 단계에 따라 환경을 구성해주세요.
-
-### 1. 패키지 매니저 설치 (pnpm)
-이 프로젝트는 패키지 관리를 위해 `pnpm`을 사용합니다. 아직 설치되어 있지 않다면 아래 명령어로 `pnpm`을 전역으로 설치해주세요. (Node.js는 이미 설치되어 있어야 합니다.)
+### 1. pnpm 설치
 
 ```bash
 npm install -g pnpm
 ```
 
-### 2. 프로젝트 의존성 설치
-프로젝트 루트 디렉토리(이 `README.md` 파일이 있는 위치)에서 다음 명령어를 실행하여 필요한 패키지들을 설치합니다.
+### 2. 의존성 설치
 
 ```bash
+cd ui
 pnpm install
 ```
 
-### 3. 개발 서버 실행
-설치가 완료되면 다음 명령어로 로컬 개발 서버를 시작합니다.
+### 3. 환경 변수
 
-```bash
-pnpm dev
-```
-명령어를 실행하면 보통 `http://localhost:5173` 으로 서버가 구동됩니다. 터미널에 표시된 주소를 브라우저에서 열어 확인하세요.
-
-### (참고) 프로젝트 빌드
-교육 과정 중 결과물을 빌드하여 배포하는 단계가 있다면 아래 명령어를 사용합니다.
-
-```bash
-pnpm build
-```
-
-## 환경 변수
-
-`.env` 파일을 생성하고 다음 변수를 설정하세요:
+`.env` 파일을 생성하고 백엔드 주소를 설정합니다:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8000
 ```
 
-## 프로젝트 구조
+### 4. 개발 서버 실행
 
-```text
-ui/
-├── src/
-│   ├── components/    # 재사용 가능한 컴포넌트
-│   ├── hook/          # 훅 및 이벤트 모음
-│   ├── lib/           # JS 라이브러리 설정
-│   ├── pages/         # 페이지 컴포넌트
-│   ├── services/      # API 호출 및 비즈니스 로직
-│   ├── store/         # 상태 관리 및 middleware 모음
-│   ├── utils/         # 유틸리티 함수
-│   ├── App.jsx        # 메인 앱 컴포넌트
-│   ├── App.css        # 앱 스타일
-│   ├── main.jsx       # 진입점
-│   └── index.css      # 전역 스타일
-├── public/            # 정적 파일
-├── index.html         # HTML 템플릿
-├── vite.config.js     # Vite 설정
-└── package.json       # 프로젝트 메타데이터
+```bash
+pnpm dev
 ```
 
-### 디버깅 실행 순서
-1. 터미널을 열고 `pnpm dev` 명령어로 개발 서버를 실행시킵니다.
-2. VSCode 좌측 메뉴의 **Run and Debug** (또는 `Cmd+Shift+D` / `Ctrl+Shift+D`) 패널을 엽니다.
-3. 상단 설정에서 **"Launch Chrome against localhost"**를 선택하고 실행(`F5`) 버튼을 클릭합니다.
-4. VSCode 상의 소스 코드에 중단점(Breakpoint)을 설정한 후, 새로 열린 브라우저 창에서 동작을 테스트하여 디버깅을 진행할 수 있습니다.
+또는 VSCode `F5` → **`Frontend: Vite Dev`** 선택.
+
+→ `http://localhost:5173` 에서 확인.
+
+### 빌드
+
+```bash
+pnpm build
+```
+
+## 프로젝트 구조
+
+```
+ui/
+├── src/
+│   ├── components/           # 재사용 컴포넌트
+│   │   ├── ChartViewer/      # 차트 표시
+│   │   ├── CodeEditor/       # 코드 표시
+│   │   ├── GridViewer/       # 데이터 그리드
+│   │   ├── Layout/           # 메인 레이아웃 + 사이드바
+│   │   ├── MessageInput/     # 메시지 입력창
+│   │   └── MyPromptModal/    # 프롬프트 저장 모달
+│   ├── hooks/
+│   │   ├── useChat.ts        # 채팅 + SSE 스트리밍 훅
+│   │   └── useHistory.ts     # 사이드바 스레드 목록 훅
+│   ├── pages/
+│   │   ├── ChatPage.tsx      # 채팅 화면
+│   │   └── InitPage.tsx      # 초기 화면
+│   ├── services/
+│   │   ├── chatService.ts    # 백엔드 API 호출
+│   │   └── common.ts         # axios + SSE wrapper
+│   ├── store/                # Jotai atoms
+│   │   ├── answer.ts
+│   │   ├── message.ts
+│   │   ├── question.ts
+│   │   ├── prompts.ts
+│   │   └── threads.ts        # 사이드바 갱신 트리거
+│   ├── types/
+│   ├── utils/
+│   ├── App.tsx
+│   └── main.tsx
+├── public/
+├── index.html
+├── vite.config.ts
+└── package.json
+```
+
+## 핵심 흐름
+
+### SSE 스트리밍 ([services/common.ts](src/services/common.ts))
+
+`fetchEventSource`로 백엔드 `/api/v1/chat` 엔드포인트의 SSE를 구독합니다:
+
+```ts
+api.stream(url, body, (step, content, metadata, toolCalls, name) => {
+  // step: "model" | "tools" | "done"
+  // content: 응답 텍스트
+  // metadata: GridData, ChartDefinition 등
+});
+```
+
+### 사이드바 자동 갱신
+
+채팅 시 새 스레드가 자동으로 사이드바에 추가됩니다:
+
+1. `useChat.handleChunk`에서 `step === 'done'` 시 `threadsRefreshAtom`을 +1
+2. `useHistory`의 `useEffect`가 atom 변경 감지 → `getThreads()` 재호출
+3. 사이드바 "최근 대화"에 새 스레드 표시
+
+### 디버깅
+
+VSCode에서:
+1. `F5` → **`Frontend: Vite Dev`** 선택
+2. 또는 **`Full Stack (Backend + Frontend)`**로 백엔드와 동시 실행
+3. Chrome DevTools에서 React/TypeScript 디버깅

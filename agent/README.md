@@ -1,80 +1,148 @@
-# Agent Education Template
+# Agent Backend
 
-FastAPI 기반의 LangChain v1.0 에이전트 교육용 템플릿입니다.
+FastAPI + LangChain v1.0 기반 의료 Q&A 에이전트 백엔드입니다.
 
 ## 기술 스택
 
-- FastAPI
-- LangChain v1.0
-- OpenAI (GPT-4)
-- uv (패키지 관리)
+- **FastAPI** — REST API + SSE 스트리밍
+- **LangChain v1.0** — `create_agent` (구 `create_react_agent` 대체)
+- **LangGraph** — checkpointer (InMemorySaver)
+- **OpenAI** — `gpt-5-mini` (메인) + `gpt-4o-mini` (intent 분류)
+- **Elasticsearch** — RAG 의료 데이터 검색
+- **uv** — Python 패키지 매니저
 
-## 환경 준비 및 설치 가이드 (교육생용)
-
-본 에이전트 프로젝트는 파이썬 패키지 매니저로 **`uv`**를 사용합니다. 아래 절차에 따라 실습 환경을 구성해 주세요.
+## 환경 준비
 
 ### 1. 사전 요구사항
-* Python 3.11 이상 3.13 이하 버전을 권장합니다.
-* `uv` 패키지 매니저 설치:
+
+- Python 3.11 이상 ~ 3.13 이하
+- `uv` 패키지 매니저:
   ```bash
-  # macOS / Linux / Windows (WSL)
   curl -LsSf https://astral.sh/uv/install.sh | sh
   ```
 
-### 2. 프로젝트 의존성 설치
-프로젝트 폴더(`agent`)로 이동한 뒤, 아래 명령어를 실행하여 가상환경 세팅 및 관련 패키지 설치를 진행합니다.
+### 2. 의존성 설치
 
 ```bash
-# 파이썬 의존성 동기화 및 가상환경(.venv) 자동 생성
+cd agent
 uv sync
 ```
-* 명령어가 정상적으로 완료되면 프로젝트 디렉토리 내에 `.venv` 폴더가 생성됩니다.
+
+→ `.venv/` 가상환경이 자동 생성됩니다.
 
 ### 3. 환경 변수 설정
-에이전트 구동을 위해 필요한 API 키 등을 설정해야 합니다.
-
-1. 프로젝트 루트 경로의 `env.sample` 파일을 복사하여 `.env` 파일을 생성합니다.
-   ```bash
-   cp env.sample .env
-   ```
-2. 생성된 `.env` 파일을 열고, 아래와 같이 본인의 **OpenAI API Key**를 입력합니다.
-   ```env
-   OPENAI_API_KEY=your_openai_api_key_here
-   OPENAI_MODEL=gpt-4o  # 또는 gpt-4
-   ```
-
-### 4. 개발 서버 실행
-
-환경변수 세팅까지 끝났다면 가상 환경 내에서 서버를 구동합니다.
 
 ```bash
-# uvicorn 서버 실행
+cp env.sample .env
+```
+
+`.env` 파일을 열고 다음 값을 입력하세요:
+
+```env
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-5-mini
+INTENT_CLASSIFIER_MODEL=gpt-4o-mini
+
+ELASTICSEARCH_URL=https://your-es-host
+ELASTICSEARCH_INDEX=your-index
+ELASTICSEARCH_USERNAME=elastic
+ELASTICSEARCH_PASSWORD=...
+```
+
+### 4. 서버 실행
+
+```bash
 uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-서버가 성공적으로 구동되면 브라우저에서 `http://localhost:8000/docs` 로 접속하여 API 문서를 확인할 수 있습니다.
+
+또는 VSCode `F5` → **`Backend: FastAPI`** 선택.
+
+→ `http://localhost:8000/docs` 에서 Swagger UI 확인.
 
 ## 프로젝트 구조
 
 ```
 agent/
 ├── app/
-│   ├── api/              # API 엔드포인트
-│   │   └── routes/       # 라우트 정의
-│   ├── core/             # 설정 및 초기화
-│   │   └── config.py     # 설정 관리
-│   ├── models/           # 데이터 모델
-│   ├── services/         # 비즈니스 로직
-│   │   └── agent_service.py  # 에이전트 서비스
-│   ├── utils/            # 유틸리티 함수
-│   └── main.py           # FastAPI 앱 진입점
-├── tests/                # 테스트 코드
-├── pyproject.toml        # 프로젝트 설정 및 의존성
+│   ├── agents/                       # LangChain 에이전트
+│   │   ├── factory.py                # create_medical_agent()
+│   │   ├── prompts/                  # 시스템 프롬프트
+│   │   │   ├── medical.py            # 의료 Q&A 프롬프트
+│   │   │   └── intent.py             # Intent 분류 프롬프트
+│   │   ├── intent/                   # Intent 분류 기능
+│   │   │   ├── schemas.py            # IntentClassification (Pydantic)
+│   │   │   ├── classifier.py         # with_structured_output 분류기
+│   │   │   └── middleware.py         # @wrap_model_call 미들웨어
+│   │   └── medical/                  # 의료 도메인
+│   │       └── tools.py              # search_medical_data
+│   ├── api/
+│   │   ├── routes/
+│   │   │   ├── chat.py               # POST /api/v1/chat (SSE)
+│   │   │   └── threads.py            # GET/DELETE /api/v1/threads
+│   │   └── middleware/
+│   │       └── logging.py            # HTTP 로깅 미들웨어
+│   ├── core/
+│   │   └── config.py                 # Pydantic Settings
+│   ├── models/                       # Pydantic 요청/응답 모델
+│   │   └── chat.py
+│   ├── services/
+│   │   ├── agent_service.py          # 에이전트 실행/SSE 스트리밍
+│   │   ├── elasticsearch_service.py  # ES 클라이언트 + 검색
+│   │   └── thread_store.py           # 인메모리 대화 저장소
+│   ├── utils/
+│   │   └── logger.py                 # custom_logger + @log_execution
+│   └── main.py                       # FastAPI 앱 진입점
+├── tests/
+├── env.sample                        # 환경변수 템플릿
+├── pyproject.toml
 └── README.md
 ```
 
+## 핵심 컴포넌트
+
+### Intent 분류 미들웨어 ([agents/intent/](app/agents/intent/))
+
+`@wrap_model_call` 미들웨어가 에이전트 모델 호출 전에 가로챕니다:
+
+```python
+@wrap_model_call
+async def intent_middleware(request, handler):
+    intent = await classify_intent(user_text)  # gpt-4o-mini, structured output
+    if intent == "GENERAL":
+        return await handler(request.override(tools=[]))  # RAG 건너뜀
+    return await handler(request)
+```
+
+- **GENERAL** (인사/잡담) → 도구 제거 후 LLM만 호출
+- **MEDICAL** (의료 질문) → `search_medical_data` 도구 사용 가능
+
+### 인메모리 스레드 저장소 ([services/thread_store.py](app/services/thread_store.py))
+
+`POST /chat` 진입 시 user 메시지가 자동 저장되고, 첫 메시지면 새 스레드가 생성됩니다. 스트림 종료 시 assistant 응답도 저장됩니다.
+
+> ⚠️ 프로세스 메모리 기반이라 서버 재시작 시 사라집니다. DB 영속화가 필요하면 동일 인터페이스로 백엔드 교체 가능합니다.
+
 ## API 엔드포인트
 
-- `GET /`: API 정보
-- `GET /health`: 헬스 체크
-- `POST /api/query/`: 자연어 쿼리 처리
+| Method | Path | 설명 |
+|---|---|---|
+| `GET` | `/health` | 헬스 체크 |
+| `POST` | `/api/v1/chat` | 채팅 (SSE 스트리밍) |
+| `GET` | `/api/v1/threads` | 스레드 목록 |
+| `GET` | `/api/v1/threads/{id}` | 스레드 상세 |
+| `DELETE` | `/api/v1/threads/{id}` | 스레드 삭제 |
 
+### Chat 요청 예시
+
+```bash
+curl -N -X POST http://localhost:8000/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"thread_id":"11111111-1111-1111-1111-111111111111","message":"당뇨병 증상이 뭐야?"}'
+```
+
+응답은 SSE 청크로 옵니다:
+```
+data: {"step": "model", "tool_calls": ["search_medical_data"]}
+data: {"step": "tools", "name": "search_medical_data", "content": "..."}
+data: {"step": "done", "message_id": "...", "role": "assistant", "content": "...", "metadata": {}, "created_at": "..."}
+```
